@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-between">
+    <h2>Polls for Project</h2>
+    {% if projects['status']!='Completed' %}
+    <a href="{{ url_for('create_poll', project_id=project_id) }}" class="btn btn-primary mb-3">Create Poll</a>
+    {% else %}
+    <button class="btn btn-secondary" disabled>Project Completed</button>
+    {% endif %}
+</div>
+
+<div class="card shadow-lg mt-4">
+    <div class="table-responsive p-3">
+        {% if polls %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Question</th>
+                    <th>Created By</th>
+                    <th>Closes At</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for poll in polls %}
+                <tr>
+                    <td>{{ poll.question }}</td>
+                    <td>{{ poll.creator_name }}</td>
+                    <td>{{ poll.closes_at }}</td>
+                    <td>
+                        {% if poll.is_closed %}
+                        <span class="badge bg-danger">Closed</span>
+                        {% else %}
+                        <span class="badge bg-success">Open</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not poll.is_closed %}
+                        <a href="{{ url_for('vote_poll', poll_id=poll.poll_id) }}" class="btn btn-info btn-sm">Vote</a>
+                        {% endif %}
+                        <a href="{{ url_for('poll_results', poll_id=poll.poll_id) }}"
+                            class="btn btn-secondary btn-sm">Results</a>
+
+                        {% if poll.created_by == session['user_id'] and not poll.is_closed %}
+                        <form action="{{ url_for('close_poll', poll_id=poll.poll_id) }}" method="POST"
+                            style="display:inline;">
+                            <button type="submit" class="btn btn-warning btn-sm">Close Poll</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No polls found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

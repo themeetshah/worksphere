@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Vote in Poll: {{ poll.question }}</h2>
+
+    <form method="POST">
+        {% for option in options %}
+        <div class="form-check">
+            <input type="radio" id="option{{ option.option_id }}" name="option" value="{{ option.option_id }}"
+                class="form-check-input" required>
+            <label for="option{{ option.option_id }}" class="form-check-label">{{ option.option_text }}</label>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary mt-3">Submit Vote</button>
+    </form>
+</div>
+{% endblock %}

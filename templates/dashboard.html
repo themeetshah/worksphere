@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - WorkSphere{% endblock %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="container mt-3">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% if debug_logs %}
+<div class="alert alert-info">
+    {% for debug in debug_logs %}
+    <h5>{{ debug }}</h5>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <!-- Main Dashboard Card -->
+    <div class="col-md-9 order-md-1 order-2 my-2">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-gradient-success text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Dashboard</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Select an option below:</p>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <a href="/teams" class="dashboard-link">
+                            <div class="dashboard-card bg-primary">
+                                <i class="fas fa-users"></i>
+                                <span>Manage Teams</span>
+                            </div>
+                        </a>
+                    </div>
+                    {% if session['role'] in ['Manager', 'Owner'] %}
+                    <div class="col-md-6 mb-3">
+                        <a href="/add_employees" class="dashboard-link">
+                            <div class="dashboard-card bg-secondary">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Add Employees</span>
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if session['role'] in ['Manager', 'Owner'] %}
+                    <div class="col-md-6 mb-3">
+                        <a href="/employees" class="dashboard-link">
+                            <div class="dashboard-card bg-warning">
+                                <i class="fas fa-users-line"></i>
+                                <span>All Employees</span>
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-6 mb-3">
+                        <!-- <a href="/tasks" class="dashboard-link">
+                            <div class="dashboard-card bg-warning">
+                                <i class="fas fa-tasks"></i>
+                                <span>Task Management</span>
+                            </div>
+                        </a> -->
+                        <a href="{{ url_for('projects_page') }}" class="dashboard-link">
+                            <div class="dashboard-card bg-info">
+                                <i class="fas fa-tasks"></i>
+                                <span>Task Management</span>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="/expenses" class="dashboard-link">
+                            <div class="dashboard-card bg-success">
+                                <i class="fas fa-wallet"></i>
+                                <span>Budget Tracking</span>
+                            </div>
+                        </a>
+                    </div>
+                    {% if session['role'] not in ['Manager', 'Owner'] %}
+                    <div class="col-md-6 mb-3">
+                        <a href="/polls" class="dashboard-link">
+                            <div class="dashboard-card bg-danger">
+                                <i class="fas fa-poll"></i>
+                                <span>Create & Vote in Polls</span>
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if session['role'] in ['Team Leader', 'Team Member'] %}
+                    <div class="col-md-6 mb-3">
+                        <a href="{{ url_for('working', user_id=session['user_id'])}}" class="dashboard-link">
+                            <div class="dashboard-card bg-warning">
+                                <i class="fas fa-clock"></i>
+                                <span>Working Hours</span>
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="col-md-3 order-md-2 order-1 my-2">
+        <div class="card shadow-lg border-0">
+            <div class="card-body text-center">
+                <h5 class="fw-bold text-primary">Welcome, {{ name }}</h5>
+                <p class="text-muted mb-1">User ID: <strong class="text-dark">{{ session['user_id'] }}</strong></p>
+                <p class="text-muted mb-3">Role: <strong class="text-dark">{{ role }}</strong></p>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('profile', user_id=session['user_id']) }}"
+                        class="btn btn-primary w-100 fw-bold">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <a href="/logout" class="btn btn-danger w-100 fw-bold">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styling -->
+<style>
+    /* Glassmorphism Effect */
+    .glassmorphism {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+    }
+
+    /* Dashboard Card Styling */
+    .dashboard-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 80px;
+        border-radius: 12px;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-card i {
+        font-size: 1.5rem;
+        margin-right: 10px;
+    }
+
+    .dashboard-link {
+        text-decoration: none;
+    }
+
+    /* Hover Effects */
+    .dashboard-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745, #218838);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-card {
+            font-size: 1rem;
+            height: 70px;
+        }
+
+        .dashboard-card i {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let restrictedButton = document.querySelector(".restricted");
+        if (restrictedButton) {
+            restrictedButton.addEventListener("click", function () {
+                alert("You don't have access to Add Employees.");
+            });
+        }
+    });
+</script>
+{% endblock %}

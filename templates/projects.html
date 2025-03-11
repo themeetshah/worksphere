@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="container mt-3">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h2>Projects</h2>
+    {% if session['role'] in ['Owner', 'Manager'] %}
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProjectModal">Add Project</button>
+    {% endif %}
+</div>
+
+<div class="card shadow-lg mt-3 p-3">
+    <h4 class="text-primary">Select a Project</h4>
+    {% if projects %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Project ID</th>
+                    <th>Project Name</th>
+                    <th>Assigned Team</th>
+                    <th>Client</th>
+                    <th>Budget</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>{{ project.project_id }}</td>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.team_name }}</td>
+                    <td>{{ project.client }}</td>
+                    <td>${{ project.budget }}</td>
+                    <td>
+                        {% if project.status == 'Completed' %}
+                        <span class="badge bg-success">Completed</span>
+                        {% else %}
+                        <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('tasks', project_id=project.project_id) }}" class="btn btn-primary btn-sm">
+                            View Tasks
+                        </a>
+
+                        {% if session['role'] == 'Team Leader' %}
+                        <form action="{{ url_for('submit_project', project_id=project.project_id) }}" method="POST"
+                            class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Submit Project</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No projects available.</p>
+    {% endif %}
+</div>
+
+<!-- Add Project Modal -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_project') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Project Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="client" class="form-label">Client</label>
+                        <input type="text" class="form-control" id="client" name="client" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="budget" class="form-label">Budget ($)</label>
+                        <input type="number" class="form-control" id="budget" name="budget" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="team_id" class="form-label">Assign Team</label>
+                        <select class="form-control" id="team_id" name="team_id" required>
+                            <option value="" hidden>Select Team</option>
+                            {% for team in teams %}
+                            <option value="{{ team.team_id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

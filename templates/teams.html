@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid d-flex flex-wrap justify-content-between align-items-center p-0">
+    <h2 class="mb-3">Teams</h2>
+    {% if session['role'] in ['Manager', 'Owner'] %}
+    <a href="{{ url_for('add_team') }}" class="btn btn-outline-secondary mb-3">Add Team</a>
+    {% endif %}
+</div>
+
+{% if debug_logs %}
+<div class="alert alert-info">
+    {% for debug in debug_logs %}
+    <h5>{{ debug }}</h5>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if teams %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Team ID</th>
+                <th>Team Name</th>
+                <th>Team Leader</th>
+                <th>Manager Name</th>
+                <!-- <th></th> -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for team in teams %}
+            <tr onclick="window.location.href=' /team_details/{{ team.team_id }}'" style="cursor: pointer;">
+                <td>{{ team.team_id }}</td>
+                <td>{{ team.team_name }}</td>
+                <td>{{ team.leader_name }}</td>
+                <td>{{ team.manager_name }}</td>
+                <!-- <td>
+                    <a href="{{ url_for('team_details', team_id=team.team_id) }}">
+                        View Team Details
+                    </a>
+                </td> -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No teams found.</p>
+{% endif %}
+{% endblock %}

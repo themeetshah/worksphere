@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Create a New Poll</h2>
+
+    <form method="POST">
+        <div class="mb-3">
+            <label for="question" class="form-label">Poll Question:</label>
+            <input type="text" id="question" name="question" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="closes_at" class="form-label">Closing Date & Time:</label>
+            <input type="datetime-local" id="closes_at" name="closes_at" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Poll Options (Enter at least 2):</label>
+            <div id="options-container">
+                <input type="text" name="options" class="form-control mb-2" required>
+                <input type="text" name="options" class="form-control mb-2" required>
+            </div>
+            <button type="button" onclick="addOption()" class="btn btn-secondary btn-sm">Add Option</button>
+        </div>
+
+        <button type="submit" class="btn btn-success">Create Poll</button>
+    </form>
+</div>
+
+<script>
+    function addOption() {
+        var container = document.getElementById("options-container");
+        var input = document.createElement("input");
+        input.type = "text";
+        input.name = "options";
+        input.className = "form-control mb-2";
+        input.required = true;
+        container.appendChild(input);
+    }
+</script>
+{% endblock %}

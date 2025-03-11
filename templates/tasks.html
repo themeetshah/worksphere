@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="container mt-3">
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="container-fluid p-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Task Management</h2>
+        {% if session['role'] == 'Team Leader' %}
+        {% if projects['status']!='Completed' %}
+        <a href="{{ url_for('assign_task', project_id=projects.project_id) }}" class="btn btn-primary">Assign Task</a>
+        {% else %}
+        <a href="{{ url_for('download_report', project_id=projects.project_id) }}" class="btn btn-primary">Download
+            Report</a>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="card shadow-lg mt-3 p-3">
+        <h4 class="text-primary">Tasks</h4>
+        {% if tasks %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Task ID</th>
+                        <th>Project</th>
+                        <th>Title</th>
+                        <th>Assigned To</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                        <th>Uploaded File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.task_id }}</td>
+                        <td>{{ task.project_name }}</td>
+                        <td>{{ task.task_name }}</td>
+                        <td onclick="window.location.href='/profile/{{ task.assigned_to }}'" style="cursor: pointer;">
+                            {{ task.name }}</td>
+                        <td>{{ task.deadline }}</td>
+                        <td>
+                            {% if task.status == 'Completed' %}
+                            <span class="badge bg-success">Completed</span>
+                            {% elif task.status == 'Pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ task.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.status == 'Completed' %}
+                            <span class="text-muted">Submitted</span>
+                            {% elif task.assigned_to == session['user_id'] %}
+                            <form action="{{ url_for('submit_task', task_id=task.task_id) }}" method="POST"
+                                enctype="multipart/form-data" class="d-inline">
+                                <input type="file" name="file" class="form-control mb-2">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted">Submit</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.submission_file %}
+                            {% if session['role'] == 'Team Leader' or task.assigned_to == session['user_id'] %}
+                            <a href="{{ url_for('download_file', filename=task.submission_file.split('/')[-1]) }}"
+                                class="btn btn-info btn-sm" target="_blank">
+                                View File
+                            </a>
+                            {% else %}
+                            <span class="text-muted">No Access</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="text-muted">No File</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No tasks found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

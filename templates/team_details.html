@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center">
+    <h2>Team Details (Team ID: {{ team_id }})</h2>
+    <div>
+        <a href="{{ url_for('view_teams') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        {% if session['role'] in ['Manager', 'Owner'] %}
+        <a href="{{ url_for('edit_team', team_id=team_id) }}" class="btn btn-primary">Edit Team</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow-lg mt-3 p-3">
+    <h4 class="text-primary">Team Members</h4>
+    {% if members %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in members %}
+                <tr onclick="window.location.href='/profile/{{ member.user_id }}'" style="cursor: pointer;">
+                    <td>{{ member.user_id }}</td>
+                    <td>{{ member.name }}</td>
+                    <td>{{ member.email }}</td>
+                    <td>{{ member.role }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">No team members found.</p>
+    {% endif %}
+</div>
+
+<div class="card shadow-lg mt-3 p-3 text-center">
+    <div class="row">
+        <div class="col-md-6">
+            <h4 class="text-success">Task Completion Status</h4>
+            {% if completion_chart_url %}
+            <img src="../{{ url_for('static', filename=completion_chart_url) }}" class="img-fluid rounded"
+                alt="Task Completion Chart">
+            {% else %}
+            <p class="text-muted">No task completion data available.</p>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h4 class="text-primary">Task Timing Performance</h4>
+            {% if timing_chart_url %}
+            <img src="../{{ url_for('static', filename=timing_chart_url) }}" class="img-fluid rounded"
+                alt="Task Timing Chart">
+            {% else %}
+            <p class="text-muted">No task timing data available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-lg mt-3 p-3">
+    <h4 class="text-info">Projects Done</h4>
+    {% if completed_projects %}
+    <ul class="list-group">
+        {% for project in completed_projects %}
+        <li class="list-group-item d-flex flex-sm-row flex-column justify-content-between align-items-center"
+            onclick="window.location.href='/tasks/{{project.project_id}}'" style="cursor: pointer;">
+            <span><strong>{{ project['name'] }}</strong></span>
+            <span>Status: <strong>{{ project['status'] }}</strong></span>
+            <span>Client: <strong>{{ project['client'] }}</strong></span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">No completed projects.</p>
+    {% endif %}
+</div>
+
+<div class="card shadow-lg mt-3 p-3">
+    <h4 class="text-warning">Ongoing Projects</h4>
+    {% if ongoing_projects %}
+    <ul class="list-group">
+        {% for project in ongoing_projects %}
+        <li class="list-group-item d-flex flex-sm-row flex-column justify-content-between align-items-center"
+            onclick="window.location.href=' /tasks/{{ project.project_id }}'" style="cursor: pointer;">
+            <span><strong>{{ project['name'] }}</strong></span>
+            <span>Status: <strong>{{ project['status'] }}</strong></span>
+            <span>Client: <strong>{{ project['client'] }}</strong></span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">No ongoing projects.</p>
+    {% endif %}
+</div>
+{% endblock %}

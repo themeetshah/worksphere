@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <h2 class="text-primary"><i class="fas fa-user-circle"></i> Profile</h2>
+    <!-- <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a> -->
+</div>
+
+<!-- Profile Section -->
+<div class="card shadow-lg border-0 p-4 text-center">
+    <div class="profile-avatar mx-auto mb-2">
+        <span>{{ user['name'][0]|upper }}</span>
+    </div>
+    <h3 class="fw-bold text-success">{{ user['name'] }}</h3>
+    <span class="text-muted mb-2">ID: <strong class="text-dark">{{ user['user_id'] }}</strong></span>
+    <span class="text-muted mb-2">Email: <strong class="text-dark">{{ user['email'] }}</strong></span>
+    <span class="text-muted mb-2">Team ID: <strong class="text-dark">{{ user['team_id'] if user['team_id'] else 'Not
+            Assigned' }}</strong></span>
+    <span class="text-muted">Role: <strong class="text-dark">{{ user['role'] }}</strong></span>
+</div>
+
+{% if is_manager %}
+<!-- Projects Managed (Only for Managers) -->
+<div class="card shadow-lg border-0 mt-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-tasks"></i> Projects Managed</h5>
+    </div>
+    <div class="card-body">
+        {% if projects_managed %}
+        <ul class="list-group">
+            {% for project in projects_managed %}
+            <li class="list-group-item d-flex flex-sm-row flex-column justify-content-between align-items-center"
+                onclick="window.location.href=' /tasks/{{ project.project_id }}'" style="cursor: pointer;">
+                <span><strong>{{ project['name'] }}</strong></span>
+                <span>Status: <strong>{{ project['status'] }}</strong></span>
+                <span>Client: <strong>{{ project['client'] }}</strong></span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center">No projects managed.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Teams Managed & Their Performance -->
+<div class="card shadow-lg border-0 mt-4">
+    <div class="card-header bg-gradient-success text-white">
+        <h5 class="mb-0"><i class="fas fa-users"></i> Teams Under Management</h5>
+    </div>
+    <div class="card-body">
+        {% if teams_under %}
+        <ul class="list-group list-group-flush">
+            {% for team in teams_under %}
+            <li class="list-group-item" onclick="window.location.href=' /team_details/{{ team.team_id }}'"
+                style="cursor: pointer;">
+                <strong>{{ team['name'] }}</strong> (Team ID: {{ team['team_id'] }})
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center">No teams assigned.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- <div class="card shadow-lg border-0 mt-4">
+    <div class="card-header bg-warning text-white">
+        <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Team Task Performance</h5>
+    </div>
+    <div class="card-body">
+        {% if team_task_stats %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th class="text-center">Total Tasks</th>
+                    <th class="text-center">On-Time Completion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team in team_task_stats %}
+                <tr onclick="window.location.href=' /team_details/{{ team.team_id }}'" style="cursor: pointer;">
+                    <td>{{ team['name'] }}</td>
+                    <td class="text-center">{{ team['total_tasks'] }}</td>
+                    <td class="text-center">{{ team['tasks_on_time'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted text-center">No task data available.</p>
+        {% endif %}
+    </div>
+</div> -->
+{% if chart_url %}
+<div class="card shadow-lg border-0 mt-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Task Performance Chart</h5>
+    </div>
+    <div class="card-body text-center">
+        <img src="../{{ url_for('static', filename=chart_url) }}" class="img-fluid" alt="Task Performance Chart">
+    </div>
+</div>
+{% endif %}
+{% endif %}
+
+{% if is_owner %}
+<!-- Owner Statistics -->
+<div class="card shadow-lg border-0 mt-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Company Overview</h5>
+    </div>
+    <div class="card-body text-center">
+        <div class="row">
+            <div class="col-md-4" onclick="window.location.href='/employees'" style="cursor: pointer;">
+                <h5 class="text-primary"><i class="fas fa-users"></i> Total Employees</h5>
+                <p class="fw-bold display-6 count-up" data-count="{{ total_employees | int }}">0</p>
+            </div>
+            <div class="col-md-4" onclick="window.location.href='/projects'" style="cursor: pointer;">
+                <h5 class="text-primary"><i class="fas fa-folder-open"></i> Total Projects</h5>
+                <p class="fw-bold display-6 count-up" data-count="{{ total_projects | int }}">0</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="text-success"><i class="fas fa-handshake"></i> Clients Served</h5>
+                <p class="fw-bold display-6 count-up" data-count="{{ distinct_clients | int }}">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if not is_manager and not is_owner %}
+<!-- Projects Involved (For Normal Employees) -->
+<div class="card shadow-lg border-0 mt-4">
+    <div class="card-header bg-gradient-success text-white">
+        <h5 class="mb-0"><i class="fas fa-project-diagram"></i> Projects Involved</h5>
+    </div>
+    <div class="card-body">
+        {% if projects %}
+        <ul class="list-group">
+            {% for project in projects %}
+            <li class="list-group-item d-flex justify-content-between align-items-center"
+                onclick="window.location.href='/tasks/{{project.project_id}}'">
+                <span><strong>{{ project.name }}</strong></span>
+                <span>Status: <strong>{{ project.status }}</strong></span>
+                <span>Client: <strong>{{ project.client }}</strong></span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center">No projects assigned.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Task Summary (For Normal Employees) -->
+<div class="card shadow-lg border-0 mt-4">
+    <div class="card-header bg-gradient-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-tasks"></i> Task Summary</h5>
+    </div>
+    <div class="card-body">
+        {% if total_tasks > 0 %}
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h5 class="text-success"><i class="fas fa-check-circle"></i> Before Deadline</h5>
+                <p class="fw-bold display-6">{{ completed_before_deadline }}</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="text-danger"><i class="fas fa-clock"></i> After Deadline</h5>
+                <p class="fw-bold display-6">{{ completed_after_deadline }}</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="text-primary"><i class="fas fa-tasks"></i> Total Assigned</h5>
+                <p class="fw-bold display-6">{{ total_tasks }}</p>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No tasks assigned.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Task Summary (For Normal Employees) -->
+<div class="card shadow-lg border-0 mt-4">
+    <div class="card-header bg-warning text-white">
+        <h5 class="mb-0"><i class="fas fa-clock"></i> Working Hours</h5>
+    </div>
+    <div class="card-body">
+        {% if weekly_chart_url and monthly_chart_url %}
+        <div class="row text-center">
+            {% if weekly_chart_url %}
+            <div class="col-md-6">
+                <div>
+                    <h3>Weekly Working Hours</h3>
+                    <img src="{{ url_for('static', filename=weekly_chart_url) }}" alt="Weekly Working Hours Chart">
+                </div>
+            </div>
+            {% endif %}
+
+            {% if monthly_chart_url %}
+            <div class="col-md-6">
+                <div>
+                    <h3>Monthly Working Hours</h3>
+                    <img src="{{ url_for('static', filename=monthly_chart_url) }}"
+                        alt="Monthly Working Hours Pie Chart">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No working hours.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Custom Styling -->
+<style>
+    .container {
+        margin-top: 1.5rem;
+        padding-bottom: 3rem;
+    }
+
+    /* Animated Profile Avatar */
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+        background: linear-gradient(135deg, #28a745, #218838);
+        animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0px 0px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        100% {
+            box-shadow: 0px 0px 20px rgba(40, 167, 69, 0.6);
+        }
+    }
+
+    /* Hover effect for project list */
+    .list-group-item:hover {
+        background: rgba(0, 123, 255, 0.1);
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+    }
+
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Gradient Headers */
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745, #218838);
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+    }
+
+    /* Animated Counter */
+    .count-up {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+</style>
+
+<!-- JavaScript for Counter Animation -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let counters = document.querySelectorAll(".count-up");
+        counters.forEach(counter => {
+            let target = parseInt(counter.getAttribute("data-count"));
+            let count = 0;
+            let step = target / 50;
+
+            function updateCounter() {
+                count += step;
+                if (count >= target) {
+                    counter.innerText = target;
+                } else {
+                    counter.innerText = Math.floor(count);
+                    requestAnimationFrame(updateCounter);
+                }
+            }
+            updateCounter();
+        });
+    });
+</script>
+{% endblock %}

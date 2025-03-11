@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid d-flex flex-wrap justify-content-between align-items-center p-0">
+    <h2 class="mb-3">Edit Team (ID: {{ team_id }})</h2>
+    <a href="{{ url_for('team_details', team_id=team_id) }}" class="btn btn-outline-secondary mb-3">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<!-- Debug Messages Section -->
+<!-- Debug Messages Section (Only Show if Messages Exist) -->
+{% if debug_logs %}
+<div class="alert alert-info">
+    {% for debug in debug_logs %}
+    <h5>{{ debug }}</h5>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Add Member Section -->
+    <div class="col-md-6">
+        <div class="card shadow p-3 mb-4">
+            <h4 class="text-success">➕ Add a Member</h4>
+            <form method="POST">
+                <div class="row">
+                    <input type="hidden" name="action" value="add">
+
+                    <div class="mb-3 col-md-6 col-11">
+                        <label for="new_user_id" class="form-label">User ID:</label>
+                        <input type="number" class="form-control" name="new_user_id" required>
+                    </div>
+
+                    <div class="mb-3 col-md-6 col-11">
+                        <label for="new_role" class="form-label">Select Role:</label>
+                        <select class="form-select" name="new_role" required>
+                            <option value="Team Member">👥 Team Member</option>
+                            <option value="Team Leader">⭐ Team Leader</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Add Member</button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Remove Member Section -->
+    {% if members %}
+    <div class="col-md-6">
+        <div class="card shadow p-3 mb-4">
+            <h4 class="text-danger">❌ Remove a Member</h4>
+            <form method="POST">
+                <input type="hidden" name="action" value="remove">
+                <div class="mb-3">
+                    <label for="user_id" class="form-label">Select Member:</label>
+                    <select class="form-select" name="user_id" required>
+                        <!-- <option value="none" hidden>Select Member</option> -->
+                        {% for member in members %}
+                        <option value="{{ member.user_id }}">{{ member.name }} ({{ member.role }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-danger w-100">Remove Member</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Team Members List -->
+<div class="card shadow p-3">
+    <h4>👥 Team Members</h4>
+    <div class="table-responsive">
+        <table class="table table-bordered mt-3">
+            <thead class="table-light">
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in members %}
+                <tr onclick="window.location.href=' /profile/{{ member.user_id }}'" style="cursor: pointer;">
+                    <td>{{ member.user_id }}</td>
+                    <td>{{ member.name }}</td>
+                    <td>{{ member.role }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

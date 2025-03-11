@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary">Add Team</h2>
+    <a href="{{ url_for('view_teams') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+{% if debug_logs %}
+<div class="alert alert-info">
+    {% for debug in debug_logs %}
+    <h5>{{ debug }}</h5>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="card shadow p-4">
+    <form method="POST" action="{{ url_for('add_team') }}">
+        <div class="mb-3">
+            <label for="name" class="form-label fw-bold">Team Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Enter team name" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="manager_id" class="form-label fw-bold">Assign Manager</label>
+            {% if role=='Manager' %}
+            <select class="form-select" id="manager_id" name="manager_id" required disabled>
+                <option value="{{ user_id }}" selected>{{ name }} (Id: {{ user_id }})</option>
+            </select>
+            <input type="hidden" name="manager_id" value="{{ user_id }}">
+            {% else %}
+            <select class="form-select" id="manager_id" name="manager_id" required>
+                <option value="" disabled selected>Select a manager</option>
+                {% for manager in managers %}
+                <option value="{{ manager.user_id }}">{{ manager.name }} (Id: {{ manager.user_id }})</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Create Team</button>
+    </form>
+</div>
+{% endblock %}
