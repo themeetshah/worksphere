@@ -3,7 +3,7 @@
 **WorkSphere** is a **Flask-based project management system** that helps organizations efficiently manage teams, tasks, budgets, expenses, polls, and employee performance. It features **role-based access control**, graphical reports, and a structured **task management system**.  
 
 ## 🎥 Demo  
-- Preview the project [here](demo.mp4).
+- Preview the project [here](https://www.linkedin.com/posts/themeetshahh_worksphere-python-flask-activity-7309515354005778432-uEAZ).
 
 ## 🚀 Features
 
